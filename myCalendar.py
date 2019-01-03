@@ -118,6 +118,7 @@ class MyCalendar(QCalendarWidget):
       elif date < self.currentDate or date > self.maxDate:
           painter.setPen(QPen(QColor('gray')))
           painter.drawText(rect, Qt.AlignCenter, str(date.day()))
+          painter.restore()
       else:
           super(MyCalendar, self).paintCell(painter, rect, date)
 
