@@ -121,14 +121,6 @@ class MyCalendar(QCalendarWidget):
       else:
           super(MyCalendar, self).paintCell(painter, rect, date)
 
-      if date == self.selectedDate():
-          painter.save()
-          painter.setPen(Qt.NoPen)
-          painter.setBrush(QColor(0, 145, 255))
-          painter.drawRoundedRect(rect.x() + 5, rect.y(), rect.width() - 10, rect.height(), 5, 5)
-          painter.setPen(QColor(255, 255, 255))
-          painter.drawText(rect, Qt.AlignCenter, str(date.day()))
-          painter.restore()
 
 
 if __name__ == '__main__':
