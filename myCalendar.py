@@ -16,9 +16,9 @@ class MyCalendar(QCalendarWidget):
   def __init__(self,parent=None):
       super(MyCalendar,self).__init__(parent)
       self.initUI()
-      self.setStyles()
+      self.setupTableViewStyles()
       self.initNavigationBar()
-      self.initTipLabel()
+      self.initMessageLabel()
 
 
   def initUI(self):
@@ -30,13 +30,13 @@ class MyCalendar(QCalendarWidget):
       # self.setFirstDayOfWeek(1)  # 第一列是周一
       # self.setWindowOpacity(0.5) #设置窗口透明度
       self.setHorizontalHeaderFormat(self.SingleLetterDayNames) #将周一改成一
-      self.setTextFormat()
+      self.setupTextFormat()
       self.currentDate = QDate.currentDate()
       self.maxDate = self.currentDate.addDays(29)  # 30天选择期
       self.setDateRange(self.currentDate, self.maxDate)
 
 
-  def setTextFormat(self):
+  def setupTextFormat(self):
       # 表头设置文字颜色
       format = QTextCharFormat()
       format.setForeground(Qt.black)
@@ -47,10 +47,10 @@ class MyCalendar(QCalendarWidget):
       # 设置周六、周天颜色
       for day in (Qt.Saturday, Qt.Sunday):
           format = self.weekdayTextFormat(day)
-          format.setForeground(Qt.red)
+          format.setForeground(QColor('#d81e06'))
           self.setWeekdayTextFormat(day, format)
 
-  def setStyles(self):
+  def setupTableViewStyles(self):
       self.setStyleSheet("QTableView{alternate-background-color:#DEDEDE;" #周几的背景颜色哦
                          "background-color: white;}" #整个日历表格的背景色
                          "QAbstractItemView:enabled {font: 10pt;" #字号
@@ -90,12 +90,12 @@ class MyCalendar(QCalendarWidget):
       self.monthAndYearLabel.setText('{}年{}月'.format(self.yearbutton.text(), monthDict[self.monthbutton.text()]))
 
 
-  def initTipLabel(self):
+  def initMessageLabel(self):
       label = QLabel()
       label.setFixedHeight(25)  # 设置固定高度
       label.setText('当前预售期为30天，请选择您的出发日期') #这地方你想咋提示就写啥
       label.setAlignment(Qt.AlignCenter)  # 文字居中显示
-      label.setFont(QFont('黑体', 10))
+      label.setFont(QFont('黑体', 8))
       label.setStyleSheet('QLabel{color:gray}'
                           'QLabel{background-color:rgb(253,245,230)}')
 
@@ -108,11 +108,14 @@ class MyCalendar(QCalendarWidget):
           painter.save()
           # painter.fillRect(rect, QColor("#D3D3D3"))
           painter.setPen(Qt.NoPen)
-          painter.setBrush(QColor("#33B5E5"))
+          painter.setBrush(QColor('#d81e06'))
           r = QRect(QPoint(), min(rect.width(), rect.height()) * QSize(1, 1))
           r.moveCenter(rect.center())
           painter.drawEllipse(r)
-          painter.setPen(QPen(QColor('white')))
+          painter.setPen(QPen(Qt.white))
+          # font = painter.font() #设置字体
+          # font.setPixelSize(12)
+          painter.setFont(QFont('黑体',8))
           painter.drawText(rect, Qt.AlignCenter, '今天') #str(date.day())
           painter.restore()
       elif date < self.currentDate or date > self.maxDate:

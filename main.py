@@ -1,7 +1,9 @@
 import sys
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QSize, QDate, QPropertyAnimation, QRect
+from PyQt5.QtCore import QSize, QDate, QPropertyAnimation, QRect, Qt
 from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtWidgets import QPushButton, QStylePainter, QStyle, QMainWindow
+
 from query import Ui_MainWindow
 from tool import Utility
 from myCalendar import MyCalendar
@@ -14,19 +16,17 @@ checkBoxQSS = '''
            QCheckBox::indicator:checked {image:url(Pictures/selected.png)}
       '''
 
-
-
-
-
-class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
+class MainWindow(QMainWindow, Ui_MainWindow):
 
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
+
         self.initUI()
+
 
     def initUI(self):
         self.setupUi(self)
-        self.setCSSStyle()
+        self.setupCSSStyle()
         self.utility = Utility() #实例化工具类
         # self.setFixedSize(QSize(self.width(),self.height()))  #禁止拉伸窗口大小
         self.winHeight = self.height() # 获取窗体高度，便用
@@ -34,13 +34,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.logoLabel.resize(150,150)
         self.logoLabel.setScaledContents(True) #图片填满label
         self.logoLabel.setPixmap(QPixmap('Pictures/train3.png')) #设置label上的图片
+
         self.exchangeButton.setIcon(QIcon("Pictures/exchange.png")) # 设置Icon
         self.exchangeButton.setIconSize(QSize(50, 50))  # 设置交换按钮icon size
-        self.timeButton.setText(self.utility.getDepartureDate()) #设置出发日期
         self.exchangeButton.clicked.connect(self.exchangePlace)
+
+        self.timeButton.setText(self.utility.getDepartureDate()) #设置出发日期
+        self.timeButton.setIcon(QIcon("Pictures/calendar.png")) # 设置Icon
         self.timeButton.clicked.connect(self.selectDate)
+
+        self.startButton.setIcon(QIcon("Pictures/start.png"))  # 设置Icon
+        self.destinationButton.setIcon(QIcon("Pictures/destination.png"))
+
         self.studentCheckBox.stateChanged.connect(lambda: self.iSBoxChecked(self.studentCheckBox))
         self.highSpeedCheckBox.stateChanged.connect(lambda: self.iSBoxChecked(self.highSpeedCheckBox))
+
 
 
     def selectDate(self):
@@ -93,7 +101,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.startButton.setText(self.destinationButton.text())
         self.destinationButton.setText(startPlace)
 
-    def setCSSStyle(self):
+    def setupCSSStyle(self):
         # self.setStyleSheet("QMainWindow{background-color:white}")
         self.setStyleSheet("QMainWindow{border-image: url(Pictures/bg3.jpg)}") #设置背景图
 
@@ -116,7 +124,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
     def getButtonQSS(self,str):
-       return  'QPushButton{text-align:%s;color:white;background-color:transparent}' % str
+       return  'QPushButton{text-align:%s;color:white;background-color:transparent;qproperty-iconSize: 25px}' % str
+       # qproperty-iconSize 设置icon size
+
+class RotatedButton(QPushButton):
+    def __init__(self,parent = None):
+        super(RotatedButton,self).__init__(parent)
+        self.setStyleSheet('QPushButton{background-color:white}')
+
+    def paintEvent(self, event):
+        painter = QStylePainter(self)
+        painter.rotate(90)
+        painter.translate(0, -1 * self.width())
+
 
 
 

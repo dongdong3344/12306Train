@@ -2,6 +2,7 @@ import re
 import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QSize, pyqtSignal, QRunnable, QThreadPool
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction, QLineEdit, QDialog, QLabel
 from waitingspinnerwidget import QtWaitingSpinner
 from main import  MainWindow
@@ -34,7 +35,6 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
         self.gifLabel = QLabel(self)
         # self.showLoading()
         self.userName = ''
-
         self.loginButton.clicked.connect(self.login)
 
 
@@ -114,7 +114,8 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
             'appid': 'otn'
         }
         result = self.session.post(API.login, data=loginData).json()
-        if result['result_code'] == 1:  # 出错的话，显示错误信息
+        print(result)
+        if result['result_code'] != 0:  # 出错的话，显示错误信息
             self.errorLabel.setText(result['result_message'])
             self.spinner.hide()
             return
@@ -196,12 +197,8 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
 
 
     def initLoginButton(self):
-        self.loginButton.setStyleSheet("QPushButton{color:white}"
-                                       "QPushButton{background-color:rgba(0,0,0,0.5)}"
-                                       "QPushButton{border:1px}"
-                                      
-                                       "QPushButton{border-radius:5px}"
-                                       "QPushButton{padding:2px 4px}")
+        self.loginButton.setStyleSheet('QPushButton{color:white;background-color:rgba(0,0,0,0.5);border:1px;border-radius:5px}')
+
         self.loginButton.setEnabled(False)
 
     def initCSS(self):
@@ -238,7 +235,6 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     loginDialog = LoginDialog()
-
     if loginDialog.exec_() == QDialog.Accepted:
         mainWindow = MainWindow()
         mainWindow.setWindowTitle('{},欢迎您进入查询余票'.format(loginDialog.userName))
