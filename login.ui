@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>489</width>
-    <height>373</height>
+    <width>500</width>
+    <height>380</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -105,25 +105,17 @@
     <string/>
    </property>
   </widget>
-  <widget class="QLabel" name="errorLabel">
+  <widget class="QPushButton" name="tipsButton">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>340</y>
-     <width>420</width>
-     <height>40</height>
+     <x>70</x>
+     <y>39</y>
+     <width>360</width>
+     <height>35</height>
     </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>10</pointsize>
-    </font>
    </property>
    <property name="text">
     <string/>
-   </property>
-   <property name="scaledContents">
-    <bool>false</bool>
    </property>
   </widget>
   <zorder>bgLabel</zorder>
@@ -131,8 +123,7 @@
   <zorder>userNameEdit</zorder>
   <zorder>passwordEdit</zorder>
   <zorder>loginButton</zorder>
-  <zorder>cancelButton</zorder>
-  <zorder>errorLabel</zorder>
+  <zorder>tipsButton</zorder>
  </widget>
  <resources/>
  <connections/>

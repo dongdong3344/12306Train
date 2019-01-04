@@ -32,7 +32,6 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
         super(LoginDialog, self).__init__(parent)
         self.initUI()
         self.session = Utility().session
-        self.gifLabel = QLabel(self)
         # self.showLoading()
         self.userName = ''
         self.loginButton.clicked.connect(self.login)
@@ -56,6 +55,10 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
         self.initSpinner()
 
         self.remberCheckBox.stateChanged.connect(lambda :self.isBoxChecked(self.remberCheckBox))
+
+        self.tipsButton.setStyleSheet('QPushButton{background-color:rgba(0,0,0,0.25);border:0px;qproperty-iconSize:30px;text-align:left;color:#d81e06;font:10pt;font-family:黑体}')
+        self.tipsButton.setIcon(QIcon('Pictures/warning.png'))
+        self.tipsButton.hide()
 
 
     def initSpinner(self):
@@ -96,6 +99,7 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
 
     def login(self):
 
+
         self.spinner.start()
 
         self.pool = RequestRunnable(target=self.login12306)
@@ -116,7 +120,8 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
         result = self.session.post(API.login, data=loginData).json()
         print(result)
         if result['result_code'] != 0:  # 出错的话，显示错误信息
-            self.errorLabel.setText(result['result_message'])
+            self.tipsButton.setText(result['result_message'])
+            self.tipsButton.show()
             self.spinner.hide()
             return
 
@@ -153,7 +158,6 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
 
     # 获取验证码正确答案
     def getCaptchaAnswer(self):
-
         response = self.session.get(API.captchaImage)
         if response.status_code == 200:
             print('验证码图片请求成功')
@@ -197,20 +201,20 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
 
 
     def initLoginButton(self):
-        self.loginButton.setStyleSheet('QPushButton{color:white;background-color:rgba(0,0,0,0.5);border:1px;border-radius:5px}')
+        self.loginButton.setStyleSheet('QPushButton{color:white;background-color:rgba(0,0,0,0.5);border:1px;border-radius:5px;}')
 
         self.loginButton.setEnabled(False)
 
     def initCSS(self):
         # self.setStyleSheet("QDialog{background-color:white}")
 
-        self.errorLabel.setStyleSheet("QLabel{color:red}")
+
         self.setStyleSheet("QDialog{border-image:url(Pictures/loginBg.png)}")
 
         self.initLoginButton()
 
         self.bgLabel.setStyleSheet("QLabel{background-color:rgba(0,0,0,0.25)}" # 设置透明背景色
-                                   "QLabel{border-radius:5px}")
+                                   "QLabel{border-radius:0px}")
         self.remberCheckBox.setStyleSheet("QCheckBox{color:white}"
                                            "QCheckBox::indicator {width: 20px; height: 20px}"
                                            "QCheckBox::indicator:unchecked {image:url(Pictures/unselect.png)}"
