@@ -26,6 +26,7 @@ class RequestRunnable(QRunnable):
         QThreadPool.globalInstance().start(self)
 
 
+
 class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
     doneSignal = pyqtSignal()
     def __init__(self,parent = None):
@@ -56,9 +57,11 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
 
         self.remberCheckBox.stateChanged.connect(lambda :self.isBoxChecked(self.remberCheckBox))
 
-        self.tipsButton.setStyleSheet('QPushButton{background-color:rgba(0,0,0,0.25);border:0px;qproperty-iconSize:30px;text-align:left;color:#d81e06;font:10pt;font-family:黑体}')
-        self.tipsButton.setIcon(QIcon('Pictures/warning.png'))
-        self.tipsButton.hide()
+        self.errorLabel.setStyleSheet('QLabel{color:red;font:10pt;font-family:黑体}')
+
+        # self.tipsButton.setStyleSheet('QPushButton{background-color:rgba(0,0,0,0.25);border:0px;qproperty-iconSize:30px;text-align:left;color:#d81e06;font:10pt;font-family:黑体}')
+        # self.tipsButton.setIcon(QIcon('Pictures/warning.png'))
+        # # self.tipsButton.hide()
 
 
     def initSpinner(self):
@@ -99,9 +102,7 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
 
     def login(self):
 
-
         self.spinner.start()
-
         self.pool = RequestRunnable(target=self.login12306)
         self.pool.start()
 
@@ -120,9 +121,8 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
         result = self.session.post(API.login, data=loginData).json()
         print(result)
         if result['result_code'] != 0:  # 出错的话，显示错误信息
-            self.tipsButton.setText(result['result_message'])
-            self.tipsButton.show()
-            self.spinner.hide()
+            self.errorLabel.setText(result['result_message'])
+            self.spinner.close()
             return
 
         # step 3：checkuser
