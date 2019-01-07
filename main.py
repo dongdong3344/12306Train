@@ -2,7 +2,8 @@ import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QSize, QDate, QPropertyAnimation, QRect, Qt
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QPushButton, QStylePainter, QStyle, QMainWindow, QComboBox, QListWidget, QListWidgetItem
+from PyQt5.QtWidgets import QPushButton, QStylePainter, QStyle, QMainWindow, QComboBox, QListWidget, QListWidgetItem, \
+    QCompleter, QAction, QLineEdit
 
 from query import Ui_MainWindow
 from tool import Utility
@@ -46,40 +47,57 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.timeButton.setIcon(QIcon("Pictures/calendar.png")) # 设置Icon
         self.timeButton.clicked.connect(self.selectDate)
 
-        self.startButton.setIcon(QIcon("Pictures/start.png"))  # 设置Icon
-        self.destinationButton.setIcon(QIcon("Pictures/destination.png"))
 
         self.studentCheckBox.stateChanged.connect(lambda: self.iSBoxChecked(self.studentCheckBox))
         self.highSpeedCheckBox.stateChanged.connect(lambda: self.iSBoxChecked(self.highSpeedCheckBox))
-        
-        self.startButton.clicked.connect(self.selectStation)
+
 
         self.stations = StationCodes().getStations()
-        
-    def selectStation(self):
 
-        self.placeLists = QListWidget(self)
-        self.placeLists.setGeometry(QRect(self.startButton.x(),self.startButton.y()+self.startButton.height(),self.startButton.width(),self.height()-self.startButton.y()-self.startButton.height()))
-        self.placeLists.addItems(self.stations)
+        self.setupLineEdit()
 
-        self.placeLists.setSortingEnabled(True)
-        # self.placeLists.sortItems()  # 排序
-        self.placeLists.setCurrentRow(0)
-        self.placeLists.setStyleSheet("QListWidget{color:black; background:white}"
-                           "QListWidget::Item{padding-top:2.5px; padding-bottom:2.5px; }"
-                           "QListWidget::Item:hover{background:skyblue; }"  #下拉滑动背景色
-                           "QListWidget::item:selected{ color:red; background:skyblue;}" #当前被选择的item背景，颜色
-                           "QListWidget::item:selected:!active{ background:skyblue; }")
+    def setupLineEdit(self):
+        # 增加自动补全
+        self.completer = QCompleter(self.stations)
+        self.completer.setFilterMode(Qt.MatchStartsWith)  # 起始位置
 
-        self.placeLists.currentItemChanged.connect(self.selectPlaceItem)
+        self.startLineEdit.setCompleter(self.completer)
+        self.startLineEdit.setPlaceholderText('始发地')
+        start = QAction(self.startLineEdit)
+        icon = QIcon("Pictures/start.png")
+        start.setIcon(icon)
+        self.startLineEdit.addAction(start, QLineEdit.LeadingPosition)
 
-        self.placeLists.show()
+        self.destinationLineEdit.setCompleter(self.completer)
+        self.destinationLineEdit.setPlaceholderText('目的地')
+        destination = QAction(self.destinationLineEdit)
+        destination.setIcon(QIcon("Pictures/destination.png"))
+        self.destinationLineEdit.addAction(destination, QLineEdit.LeadingPosition)
 
-
-    def selectPlaceItem(self):
-
-        self.startButton.setText(self.placeLists.currentItem().text())
-        self.placeLists.close()
+    # def selectStation(self):
+    #
+    #     self.placeLists = QListWidget(self)
+    #     self.placeLists.setGeometry(QRect(self.startButton.x(),self.startButton.y()+self.startButton.height(),self.startButton.width(),self.height()-self.startButton.y()-self.startButton.height()))
+    #     self.placeLists.addItems(self.stations)
+    #
+    #     self.placeLists.setSortingEnabled(True)
+    #     # self.placeLists.sortItems()  # 排序
+    #     self.placeLists.setCurrentRow(0)
+    #     self.placeLists.setStyleSheet("QListWidget{color:black; background:white}"
+    #                        "QListWidget::Item{padding-top:2.5px; padding-bottom:2.5px; }"
+    #                        "QListWidget::Item:hover{background:skyblue; }"  #下拉滑动背景色
+    #                        "QListWidget::item:selected{ color:red; background:skyblue;}" #当前被选择的item背景，颜色
+    #                        "QListWidget::item:selected:!active{ background:skyblue; }")
+    #
+    #     self.placeLists.currentItemChanged.connect(self.selectPlaceItem)
+    #
+    #     self.placeLists.show()
+    #
+    #
+    # def selectPlaceItem(self):
+    #
+    #     self.startButton.setText(self.placeLists.currentItem().text())
+    #     self.placeLists.close()
 
 
     def selectDate(self):
@@ -128,9 +146,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def exchangePlace(self):
-        startPlace = self.startButton.text()
-        self.startButton.setText(self.destinationButton.text())
-        self.destinationButton.setText(startPlace)
+
+        startPlace = self.startLineEdit.text()
+        self.startLineEdit.setText(self.destinationLineEdit.text())
+        self.destinationLineEdit.setText(startPlace)
+
+
+
 
     def setupCSSStyle(self):
         # self.setStyleSheet("QMainWindow{background-color:white}")
@@ -138,25 +160,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.exchangeButton.setStyleSheet("QPushButton{background-color:transparent}")
 
+        self.queryButton.setStyleSheet('QPushButton{color:white;background-color:#d81e06;border:1px;border-radius:5px}')
 
-        self.queryButton.setStyleSheet("QPushButton{color:white}"
-                                       "QPushButton{background-color:#d81e06}"
-                                       "QPushButton{border:1px}"
-                                       "QPushButton{border-radius:5px}"
-                                       "QPushButton{padding:2px 4px}")
 
-        self.destinationButton.setStyleSheet(self.getButtonQSS('right'))
+        for lineEdit in (self.startLineEdit,self.destinationLineEdit):
 
-        for button in (self.startButton,self.timeButton):
-            button.setStyleSheet(self.getButtonQSS('left'))
+            lineEdit.setStyleSheet("QLineEdit{border-width:5px;border-radius:5px;font-size:12pt;padding-left:2px;"
+                          "background-color:transparent;color:white;font-familiy:黑体;font-weight:bold;"
+                          "border: 1px solid white;}")
+
+
+        self.timeButton.setStyleSheet('QPushButton{text-align:left;color:white;background-color:transparent;qproperty-iconSize: 25px}')
 
         for checkBox in (self.highSpeedCheckBox,self.studentCheckBox):
                 checkBox.setStyleSheet(checkBoxQSS)
 
 
-    def getButtonQSS(self,str):
-       return  'QPushButton{text-align:%s;color:white;background-color:transparent;qproperty-iconSize: 25px}' % str
-       # qproperty-iconSize 设置icon size
 
 
 

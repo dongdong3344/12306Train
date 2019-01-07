@@ -74,31 +74,6 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="startButton">
-    <property name="geometry">
-     <rect>
-      <x>60</x>
-      <y>160</y>
-      <width>170</width>
-      <height>40</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>黑体</family>
-      <pointsize>14</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>上海</string>
-    </property>
-    <property name="default">
-     <bool>false</bool>
-    </property>
-    <property name="flat">
-     <bool>false</bool>
-    </property>
-   </widget>
    <widget class="QPushButton" name="exchangeButton">
     <property name="geometry">
      <rect>
@@ -117,31 +92,6 @@
     </property>
     <property name="flat">
      <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="destinationButton">
-    <property name="geometry">
-     <rect>
-      <x>270</x>
-      <y>160</y>
-      <width>170</width>
-      <height>40</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>黑体</family>
-      <pointsize>14</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>北京</string>
-    </property>
-    <property name="default">
-     <bool>false</bool>
-    </property>
-    <property name="flat">
-     <bool>false</bool>
     </property>
    </widget>
    <widget class="QCheckBox" name="highSpeedCheckBox">
@@ -199,6 +149,26 @@
     </property>
     <property name="text">
      <string/>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="startLineEdit">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>160</y>
+      <width>170</width>
+      <height>40</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="destinationLineEdit">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>160</y>
+      <width>170</width>
+      <height>40</height>
+     </rect>
     </property>
    </widget>
   </widget>
