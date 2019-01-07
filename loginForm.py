@@ -61,6 +61,7 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
         self.messageLabel.setWordWrap(True)
         self.messageLabel.setScaledContents(True)
         self.messageLabel.setStyleSheet('QLabel{background-color:rgb(255,0,79);color:white;font:9pt;padding-left:5px;padding-right:5px;}') #border-radius:5px
+
         height = self.messageLabel.fontMetrics().boundingRect(self.messageLabel.text()).height()
         self.messageLabel.hide()
 

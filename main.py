@@ -2,11 +2,13 @@ import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QSize, QDate, QPropertyAnimation, QRect, Qt
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QPushButton, QStylePainter, QStyle, QMainWindow
+from PyQt5.QtWidgets import QPushButton, QStylePainter, QStyle, QMainWindow, QComboBox, QListWidget, QListWidgetItem
 
 from query import Ui_MainWindow
 from tool import Utility
 from myCalendar import MyCalendar
+
+from stationCodes import StationCodes
 
 calHeight = 280
 checkBoxQSS = '''
@@ -15,6 +17,7 @@ checkBoxQSS = '''
            QCheckBox::indicator:unchecked {image:url(Pictures/unselect.png)}
            QCheckBox::indicator:checked {image:url(Pictures/selected.png)}
       '''
+
 
 class MainWindow(QMainWindow, Ui_MainWindow):
 
@@ -48,7 +51,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.studentCheckBox.stateChanged.connect(lambda: self.iSBoxChecked(self.studentCheckBox))
         self.highSpeedCheckBox.stateChanged.connect(lambda: self.iSBoxChecked(self.highSpeedCheckBox))
+        
+        self.startButton.clicked.connect(self.selectStation)
 
+        self.stations = StationCodes().getStations()
+        
+    def selectStation(self):
+
+        self.placeLists = QListWidget(self)
+        self.placeLists.setGeometry(QRect(self.startButton.x(),self.startButton.y()+self.startButton.height(),self.startButton.width(),self.height()-self.startButton.y()-self.startButton.height()))
+        self.placeLists.addItems(self.stations)
+
+        self.placeLists.setSortingEnabled(True)
+        # self.placeLists.sortItems()  # 排序
+        self.placeLists.setCurrentRow(0)
+        self.placeLists.setStyleSheet("QListWidget{color:black; background:white}"
+                           "QListWidget::Item{padding-top:2.5px; padding-bottom:2.5px; }"
+                           "QListWidget::Item:hover{background:skyblue; }"  #下拉滑动背景色
+                           "QListWidget::item:selected{ color:red; background:skyblue;}" #当前被选择的item背景，颜色
+                           "QListWidget::item:selected:!active{ background:skyblue; }")
+
+        self.placeLists.currentItemChanged.connect(self.selectPlaceItem)
+
+        self.placeLists.show()
+
+
+    def selectPlaceItem(self):
+
+        self.startButton.setText(self.placeLists.currentItem().text())
+        self.placeLists.close()
 
 
     def selectDate(self):
@@ -126,16 +157,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def getButtonQSS(self,str):
        return  'QPushButton{text-align:%s;color:white;background-color:transparent;qproperty-iconSize: 25px}' % str
        # qproperty-iconSize 设置icon size
-
-class RotatedButton(QPushButton):
-    def __init__(self,parent = None):
-        super(RotatedButton,self).__init__(parent)
-        self.setStyleSheet('QPushButton{background-color:white}')
-
-    def paintEvent(self, event):
-        painter = QStylePainter(self)
-        painter.rotate(90)
-        painter.translate(0, -1 * self.width())
 
 
 
