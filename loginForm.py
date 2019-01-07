@@ -1,7 +1,7 @@
 import re
 import sys
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QSize, pyqtSignal, QRunnable, QThreadPool
+from PyQt5.QtCore import QSize, pyqtSignal, QRunnable, QThreadPool, QRect
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction, QLineEdit, QDialog, QLabel
 from waitingspinnerwidget import QtWaitingSpinner
@@ -22,8 +22,6 @@ class RequestRunnable(QRunnable):
     def run(self):
       self.target()
 
-    def start(self):
-        QThreadPool.globalInstance().start(self)
 
 
 
@@ -57,12 +55,14 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
 
         self.remberCheckBox.stateChanged.connect(lambda :self.isBoxChecked(self.remberCheckBox))
 
-        self.errorLabel.setStyleSheet('QLabel{color:red;font:10pt;font-family:黑体}')
 
-        # self.tipsButton.setStyleSheet('QPushButton{background-color:rgba(0,0,0,0.25);border:0px;qproperty-iconSize:30px;text-align:left;color:#d81e06;font:10pt;font-family:黑体}')
-        # self.tipsButton.setIcon(QIcon('Pictures/warning.png'))
-        # # self.tipsButton.hide()
-
+        self.messageLabel.adjustSize()
+        self.messageLabel.setGeometry(QRect(70,15,360,50))
+        self.messageLabel.setWordWrap(True)
+        self.messageLabel.setScaledContents(True)
+        self.messageLabel.setStyleSheet('QLabel{background-color:rgb(255,0,79);color:white;font:9pt;padding-left:5px;padding-right:5px;}') #border-radius:5px
+        height = self.messageLabel.fontMetrics().boundingRect(self.messageLabel.text()).height()
+        self.messageLabel.hide()
 
     def initSpinner(self):
         self.spinner = QtWaitingSpinner(self, centerOnParent=True, disableParentWhenSpinning=True)
@@ -88,14 +88,12 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
 
 
     def isLoginClickable(self):
+        self.messageLabel.hide()
         if self.userNameEdit.text() =='' or self.passwordEdit.text() =='':
             self.initLoginButton()
         else:
-            self.loginButton.setStyleSheet("QPushButton{color:white}"
-                                       "QPushButton{background-color:orange}"
-                                       "QPushButton{border:1px}"
-                                       "QPushButton{border-radius:5px}"
-                                       "QPushButton{padding:2px 4px}")
+            self.loginButton.setStyleSheet("QPushButton{color:white;background-color:rgb(250,80,0);border-radius:5px}")
+
             self.loginButton.setEnabled(True)
 
 
@@ -103,13 +101,16 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
     def login(self):
 
         self.spinner.start()
-        self.pool = RequestRunnable(target=self.login12306)
-        self.pool.start()
+        runnable = RequestRunnable(target=self.login12306)
+        self.pool = QThreadPool.globalInstance()
+        self.pool.start(runnable)
+
 
 
 
     def login12306(self):
         # step 1: check验证码
+
         self.captchaCheck()
 
         # step 2: login
@@ -119,10 +120,12 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
             'appid': 'otn'
         }
         result = self.session.post(API.login, data=loginData).json()
-        print(result)
+
+
         if result['result_code'] != 0:  # 出错的话，显示错误信息
-            self.errorLabel.setText(result['result_message'])
-            self.spinner.close()
+            self.messageLabel.setText('出错啦:' + result['result_message'])
+            self.messageLabel.show()
+            self.spinner.stop()
             return
 
         # step 3：checkuser
@@ -214,7 +217,7 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
         self.initLoginButton()
 
         self.bgLabel.setStyleSheet("QLabel{background-color:rgba(0,0,0,0.25)}" # 设置透明背景色
-                                   "QLabel{border-radius:0px}")
+                                   "QLabel{border-radius:5px}")
         self.remberCheckBox.setStyleSheet("QCheckBox{color:white}"
                                            "QCheckBox::indicator {width: 20px; height: 20px}"
                                            "QCheckBox::indicator:unchecked {image:url(Pictures/unselect.png)}"
