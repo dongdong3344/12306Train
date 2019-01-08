@@ -1,5 +1,5 @@
 import sys
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import QSize, QDate, QPropertyAnimation, QRect, Qt
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QPushButton, QStylePainter, QStyle, QMainWindow, QComboBox, QListWidget, QListWidgetItem, \
@@ -18,6 +18,15 @@ checkBoxQSS = '''
            QCheckBox::indicator:unchecked {image:url(Pictures/unselect.png)}
            QCheckBox::indicator:checked {image:url(Pictures/selected.png)}
       '''
+
+class CompleterDelegate(QtWidgets.QStyledItemDelegate):
+    def initStyleOption(self, option, index):
+        super(CompleterDelegate, self).initStyleOption(option, index)
+
+
+        option.backgroundBrush = QtGui.QColor("white")
+        option.palette.setBrush(QtGui.QPalette.Text, QtGui.QColor("skyBlue"))
+        option.displayAlignment = Qt.AlignLeft
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -51,15 +60,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.studentCheckBox.stateChanged.connect(lambda: self.iSBoxChecked(self.studentCheckBox))
         self.highSpeedCheckBox.stateChanged.connect(lambda: self.iSBoxChecked(self.highSpeedCheckBox))
 
-
         self.stations = StationCodes().getStations()
-
         self.setupLineEdit()
 
     def setupLineEdit(self):
         # 增加自动补全
         self.completer = QCompleter(self.stations)
         self.completer.setFilterMode(Qt.MatchStartsWith)  # 起始位置
+        delegate = CompleterDelegate(self)
+        self.completer.popup().setStyleSheet("QScrollBar{background:skyBlue;}")
+        self.completer.popup().setItemDelegate(delegate)
+
+
+
 
         self.startLineEdit.setCompleter(self.completer)
         self.startLineEdit.setPlaceholderText('始发地')
@@ -162,21 +175,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.queryButton.setStyleSheet('QPushButton{color:white;background-color:#d81e06;border:1px;border-radius:5px}')
 
+        self.timeButton.setStyleSheet(
+            'QPushButton{text-align:left;color:white;background-color:transparent;qproperty-iconSize: 25px}')
+
 
         for lineEdit in (self.startLineEdit,self.destinationLineEdit):
 
             lineEdit.setStyleSheet("QLineEdit{border-width:5px;border-radius:5px;font-size:12pt;padding-left:2px;"
                           "background-color:transparent;color:white;font-familiy:黑体;font-weight:bold;"
-                          "border: 1px solid white;}")
+                          "border: 1px solid lightGray;}")
 
-
-        self.timeButton.setStyleSheet('QPushButton{text-align:left;color:white;background-color:transparent;qproperty-iconSize: 25px}')
 
         for checkBox in (self.highSpeedCheckBox,self.studentCheckBox):
                 checkBox.setStyleSheet(checkBoxQSS)
-
-
-
 
 
 
