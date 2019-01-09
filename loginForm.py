@@ -1,7 +1,7 @@
 import re
 import sys
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QSize, pyqtSignal, QRunnable, QThreadPool, QRect
+from PyQt5.QtCore import QSize, pyqtSignal, QRunnable, QThreadPool, QRect, QSettings, Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction, QLineEdit, QDialog, QLabel
 from waitingspinnerwidget import QtWaitingSpinner
@@ -10,7 +10,7 @@ from APIs import API
 import const
 from login import Ui_Dialog
 from tool import Utility
-
+import keyring
 
 class RequestRunnable(QRunnable):
 
@@ -23,15 +23,12 @@ class RequestRunnable(QRunnable):
       self.target()
 
 
-
-
 class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
     doneSignal = pyqtSignal()
     def __init__(self,parent = None):
         super(LoginDialog, self).__init__(parent)
         self.initUI()
         self.session = Utility().session
-        # self.showLoading()
         self.userName = ''
         self.loginButton.clicked.connect(self.login)
 
@@ -53,6 +50,17 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
 
         self.initSpinner()
 
+
+
+        self.settings = QSettings('Honeywell', '12306Train')
+        if self.settings.value('isChecked') == 'true':
+            self.remberCheckBox.setChecked(True)
+        else:
+            self.remberCheckBox.setChecked(False)
+        self.userNameEdit.setText(self.settings.value('username'))
+        self.passwordEdit.setText(self.settings.value('password'))
+
+
         self.remberCheckBox.stateChanged.connect(lambda :self.isBoxChecked(self.remberCheckBox))
 
 
@@ -62,7 +70,7 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
         self.messageLabel.setScaledContents(True)
         self.messageLabel.setStyleSheet('QLabel{background-color:rgb(255,0,79);color:white;font:9pt;padding-left:5px;padding-right:5px;}') #border-radius:5px
 
-        height = self.messageLabel.fontMetrics().boundingRect(self.messageLabel.text()).height()
+        # height = self.messageLabel.fontMetrics().boundingRect(self.messageLabel.text()).height()
         self.messageLabel.hide()
 
     def initSpinner(self):
@@ -81,11 +89,20 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
                                                "QCheckBox::indicator {width: 20px; height: 20px}"
                                                "QCheckBox::indicator:unchecked {image:url(Pictures/unselect.png)}"
                                                "QCheckBox::indicator:checked {image:url(Pictures/selected.png)}")
+            self.settings.setValue('isChecked',True)
+            self.settings.setValue('username',self.userNameEdit.text())
+            self.settings.setValue('password',self.passwordEdit.text())
+
         else:
+            self.settings.setValue('isChecked',False)
+            self.settings.setValue('username','')
+            self.settings.setValue('password', '')
             checkBox.setStyleSheet("QCheckBox{color:white}"
                                                "QCheckBox::indicator {width: 20px; height: 20px}"
                                                "QCheckBox::indicator:unchecked {image:url(Pictures/unselect.png)}"
                                                "QCheckBox::indicator:checked {image:url(Pictures/selected.png)}")
+
+        self.settings.sync()
 
 
     def isLoginClickable(self):

@@ -2,14 +2,12 @@ import sys
 from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import QSize, QDate, QPropertyAnimation, QRect, Qt
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QPushButton, QStylePainter, QStyle, QMainWindow, QComboBox, QListWidget, QListWidgetItem, \
-    QCompleter, QAction, QLineEdit
-
+from PyQt5.QtWidgets import QMainWindow,QCompleter, QAction, QLineEdit
 from query import Ui_MainWindow
 from tool import Utility
 from myCalendar import MyCalendar
-
 from stationCodes import StationCodes
+
 
 calHeight = 280
 checkBoxQSS = '''
@@ -23,9 +21,8 @@ class CompleterDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(CompleterDelegate, self).initStyleOption(option, index)
 
-
-        option.backgroundBrush = QtGui.QColor("white")
-        option.palette.setBrush(QtGui.QPalette.Text, QtGui.QColor("skyBlue"))
+        option.backgroundBrush = QtGui.QColor('white')
+        option.palette.setBrush(QtGui.QPalette.Text, QtGui.QColor('black'))
         option.displayAlignment = Qt.AlignLeft
 
 
@@ -48,12 +45,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.logoLabel.setScaledContents(True) #图片填满label
         self.logoLabel.setPixmap(QPixmap('Pictures/train3.png')) #设置label上的图片
 
-        self.exchangeButton.setIcon(QIcon("Pictures/exchange.png")) # 设置Icon
+        self.exchangeButton.setIcon(QIcon('Pictures/exchange.png')) # 设置Icon
         self.exchangeButton.setIconSize(QSize(50, 50))  # 设置交换按钮icon size
         self.exchangeButton.clicked.connect(self.exchangePlace)
 
         self.timeButton.setText(self.utility.getDepartureDate()) #设置出发日期
-        self.timeButton.setIcon(QIcon("Pictures/calendar.png")) # 设置Icon
+        self.timeButton.setIcon(QIcon('Pictures/calendar.png')) # 设置Icon
         self.timeButton.clicked.connect(self.selectDate)
 
 
@@ -72,8 +69,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.completer.popup().setItemDelegate(delegate)
 
 
-
-
         self.startLineEdit.setCompleter(self.completer)
         self.startLineEdit.setPlaceholderText('始发地')
         start = QAction(self.startLineEdit)
@@ -84,7 +79,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.destinationLineEdit.setCompleter(self.completer)
         self.destinationLineEdit.setPlaceholderText('目的地')
         destination = QAction(self.destinationLineEdit)
-        destination.setIcon(QIcon("Pictures/destination.png"))
+        destination.setIcon(QIcon('Pictures/destination.png'))
         self.destinationLineEdit.addAction(destination, QLineEdit.LeadingPosition)
 
     # def selectStation(self):
