@@ -10,7 +10,22 @@ from APIs import API
 import const
 from login import Ui_Dialog
 from tool import Utility
-import keyring
+
+
+rememberBoxStyle = '''
+                    QCheckBox::indicator {width: 20px; height: 20px}
+                    QCheckBox::indicator:unchecked {image:url(Pictures/unselect.png)}
+                    QCheckBox::indicator:checked {image:url(Pictures/selected.png)}
+'''
+
+
+lineEditStyle = '''
+                  QLineEdit{border-width:5px;border-radius:5px;font-size:12px;color:black;border:1px solid gray}
+                  QLineEdit{padding-left:10px}
+                  QLineEdit:hover{border-width:5;border:1px rgb(160,50,25)}
+'''
+
+
 
 class RequestRunnable(QRunnable):
 
@@ -29,7 +44,7 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
         super(LoginDialog, self).__init__(parent)
         self.initUI()
         self.session = Utility().session
-        self.userName = ''
+        self.userName = None
         self.loginButton.clicked.connect(self.login)
 
 
@@ -43,16 +58,28 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
 
         self.setIcon(self.passwordEdit,'Pictures/password_new.png')
         self.setIcon(self.userNameEdit,'Pictures/user_new.png')
-        self.userNameEdit.textChanged.connect(self.isLoginClickable)
-        self.passwordEdit.textChanged.connect(self.isLoginClickable)
+        self.userNameEdit.textChanged.connect(self.isLoginable)
+        self.passwordEdit.textChanged.connect(self.isLoginable)
 
-        self.initCSS()
+
+        self.initSettings()
+
+        self.setupStyleSheet()
+
+        self.isLoginable()
 
         self.initSpinner()
 
+        self.initMessageLabel()
 
 
+        self.remberCheckBox.stateChanged.connect(self.setupRememberCheck)
+
+
+
+    def initSettings(self):
         self.settings = QSettings('Honeywell', '12306Train')
+
         if self.settings.value('isChecked') == 'true':
             self.remberCheckBox.setChecked(True)
         else:
@@ -60,15 +87,13 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
         self.userNameEdit.setText(self.settings.value('username'))
         self.passwordEdit.setText(self.settings.value('password'))
 
-
-        self.remberCheckBox.stateChanged.connect(lambda :self.isBoxChecked(self.remberCheckBox))
-
-
+    def initMessageLabel(self):
         self.messageLabel.adjustSize()
-        self.messageLabel.setGeometry(QRect(70,15,360,50))
+        self.messageLabel.setGeometry(QRect(70, 15, 360, 50))
         self.messageLabel.setWordWrap(True)
         self.messageLabel.setScaledContents(True)
-        self.messageLabel.setStyleSheet('QLabel{background-color:rgb(255,0,79);color:white;font:9pt;padding-left:5px;padding-right:5px;}') #border-radius:5px
+        self.messageLabel.setStyleSheet(
+            'QLabel{background-color:rgb(255,0,79);color:white;font:9pt;padding-left:5px;padding-right:5px;}')  # border-radius:5px
 
         # height = self.messageLabel.fontMetrics().boundingRect(self.messageLabel.text()).height()
         self.messageLabel.hide()
@@ -82,39 +107,32 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
         self.spinner.setLineWidth(5)  # 设置线宽
         self.spinner.setTrailFadePercentage(80)
 
+    def setupRememberCheck(self):
 
-    def isBoxChecked(self,checkBox):
-        if checkBox.isChecked():
-            checkBox.setStyleSheet("QCheckBox{color:#d81e06}"
-                                               "QCheckBox::indicator {width: 20px; height: 20px}"
-                                               "QCheckBox::indicator:unchecked {image:url(Pictures/unselect.png)}"
-                                               "QCheckBox::indicator:checked {image:url(Pictures/selected.png)}")
-            self.settings.setValue('isChecked',True)
-            self.settings.setValue('username',self.userNameEdit.text())
-            self.settings.setValue('password',self.passwordEdit.text())
-
+        if self.remberCheckBox.checkState() :
+            self.remberCheckBox.setStyleSheet(rememberBoxStyle + 'QCheckBox{color:#d81e06}')
+            self.settings.setValue('isChecked', True)
+            self.settings.setValue('username', self.userNameEdit.text())
+            self.settings.setValue('password', self.passwordEdit.text())
         else:
-            self.settings.setValue('isChecked',False)
-            self.settings.setValue('username','')
+            self.remberCheckBox.setStyleSheet(rememberBoxStyle + 'QCheckBox{color:white}')
+            self.settings.setValue('isChecked', False)
+            self.settings.setValue('username', '')
             self.settings.setValue('password', '')
-            checkBox.setStyleSheet("QCheckBox{color:white}"
-                                               "QCheckBox::indicator {width: 20px; height: 20px}"
-                                               "QCheckBox::indicator:unchecked {image:url(Pictures/unselect.png)}"
-                                               "QCheckBox::indicator:checked {image:url(Pictures/selected.png)}")
 
         self.settings.sync()
 
 
-    def isLoginClickable(self):
+
+    def isLoginable(self):
         self.messageLabel.hide()
-        if self.userNameEdit.text() =='' or self.passwordEdit.text() =='':
-            self.initLoginButton()
+
+        if self.userNameEdit.text() == '' or self.passwordEdit.text() =='':
+            self.loginButton.setStyleSheet('QPushButton{color:white;background-color:rgba(0,0,0,0.5);border:1px;border-radius:5px;}')
+            self.loginButton.setEnabled(False)
         else:
             self.loginButton.setStyleSheet("QPushButton{color:white;background-color:rgb(250,80,0);border-radius:5px}")
-
             self.loginButton.setEnabled(True)
-
-
 
     def login(self):
 
@@ -122,8 +140,6 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
         runnable = RequestRunnable(target=self.login12306)
         self.pool = QThreadPool.globalInstance()
         self.pool.start(runnable)
-
-
 
 
     def login12306(self):
@@ -170,8 +186,7 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
         # step 6: initMy12306
         html = self.session.get(API.initMy12306).text
 
-        genderStr = \
-        re.findall(r'<div id="my12306page".*?</span>(.*?)</h3>', html, re.S)[0].replace('\n', '').split('，')[0]
+        genderStr = re.findall(r'<div id="my12306page".*?</span>(.*?)</h3>', html, re.S)[0].replace('\n', '').split('，')[0]
         print("恭喜{}成功登录12306网站".format(username))
         if genderStr:
             self.accept()
@@ -221,40 +236,21 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
         lineEdit.addAction(action, QLineEdit.TrailingPosition) #LeadingPosition
 
 
-    def initLoginButton(self):
-        self.loginButton.setStyleSheet('QPushButton{color:white;background-color:rgba(0,0,0,0.5);border:1px;border-radius:5px;}')
-
-        self.loginButton.setEnabled(False)
-
-    def initCSS(self):
-        # self.setStyleSheet("QDialog{background-color:white}")
-
+    def setupStyleSheet(self):
 
         self.setStyleSheet("QDialog{border-image:url(Pictures/loginBg.png)}")
 
-        self.initLoginButton()
+        self.bgLabel.setStyleSheet("QLabel{background-color:rgba(0,0,0,0.25);border-radius:5px}" )# 设置透明背景色
 
-        self.bgLabel.setStyleSheet("QLabel{background-color:rgba(0,0,0,0.25)}" # 设置透明背景色
-                                   "QLabel{border-radius:5px}")
-        self.remberCheckBox.setStyleSheet("QCheckBox{color:white}"
-                                           "QCheckBox::indicator {width: 20px; height: 20px}"
-                                           "QCheckBox::indicator:unchecked {image:url(Pictures/unselect.png)}"
-                                           "QCheckBox::indicator:checked {image:url(Pictures/selected.png)}")
-        self.setQLineEditStyle(self.userNameEdit)
-        self.setQLineEditStyle(self.passwordEdit)
+        # print(self.settings.value('isChecked'))
 
+        if self.settings.value('isChecked') =='true':
+            self.remberCheckBox.setStyleSheet('QCheckBox{color:#d81e06}' + rememberBoxStyle)
+        else:
+            self.remberCheckBox.setStyleSheet('QCheckBox{color:white}'+ rememberBoxStyle)
 
-    def setQLineEditStyle(self,qLineEdit):
-        qLineEdit.setStyleSheet("QLineEdit{border-width:5px;"
-                      "border-radius:5px;font-size:12px;"
-                      # "background-color:rgba(255,255,255,0.5);"
-                      "color:black;"
-                      "border:1px solid gray}"
-                      "QLineEdit{padding-left:10px}"
-                      "QLineEdit:hover{border-width:5;"
-                      "border:1px  rgb(160,50,25)}")
-
-
+        self.userNameEdit.setStyleSheet(lineEditStyle)
+        self.passwordEdit.setStyleSheet(lineEditStyle)
 
 
 if __name__ == '__main__':
