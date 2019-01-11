@@ -11,13 +11,11 @@ import const
 from login import Ui_Dialog
 from tool import Utility
 
-
 rememberBoxStyle = '''
                     QCheckBox::indicator {width: 20px; height: 20px}
                     QCheckBox::indicator:unchecked {image:url(Pictures/unselect.png)}
                     QCheckBox::indicator:checked {image:url(Pictures/selected.png)}
 '''
-
 
 lineEditStyle = '''
                   QLineEdit{border-width:5px;border-radius:5px;font-size:12px;color:black;border:1px solid gray}
@@ -33,20 +31,17 @@ class RequestRunnable(QRunnable):
         super(RequestRunnable,self).__init__()
         self.target =target
 
-
     def run(self):
       self.target()
 
 
 class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
-    doneSignal = pyqtSignal()
+
     def __init__(self,parent = None):
         super(LoginDialog, self).__init__(parent)
         self.initUI()
         self.session = Utility().session
         self.userName = None
-        self.loginButton.clicked.connect(self.login)
-
 
 
     def initUI(self):
@@ -56,11 +51,13 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
         self.setWindowTitle('12306登录')
         # self.userNameEdit.setClearButtonEnabled(True) #设置清空按钮
 
-        self.setIcon(self.passwordEdit,'Pictures/password_new.png')
-        self.setIcon(self.userNameEdit,'Pictures/user_new.png')
+        self.setLineEditIcon(self.passwordEdit, 'Pictures/password_new.png')
+        self.setLineEditIcon(self.userNameEdit, 'Pictures/user_new.png')
+
         self.userNameEdit.textChanged.connect(self.isLoginable)
         self.passwordEdit.textChanged.connect(self.isLoginable)
 
+        self.loginButton.clicked.connect(self.login)
 
         self.initSettings()
 
@@ -72,40 +69,8 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
 
         self.initMessageLabel()
 
-
         self.remberCheckBox.stateChanged.connect(self.setupRememberCheck)
 
-
-
-    def initSettings(self):
-        self.settings = QSettings('Honeywell', '12306Train')
-
-        if self.settings.value('isChecked') == 'true':
-            self.remberCheckBox.setChecked(True)
-        else:
-            self.remberCheckBox.setChecked(False)
-        self.userNameEdit.setText(self.settings.value('username'))
-        self.passwordEdit.setText(self.settings.value('password'))
-
-    def initMessageLabel(self):
-        self.messageLabel.adjustSize()
-        self.messageLabel.setGeometry(QRect(70, 15, 360, 50))
-        self.messageLabel.setWordWrap(True)
-        self.messageLabel.setScaledContents(True)
-        self.messageLabel.setStyleSheet(
-            'QLabel{background-color:rgb(255,0,79);color:white;font:9pt;padding-left:5px;padding-right:5px;}')  # border-radius:5px
-
-        # height = self.messageLabel.fontMetrics().boundingRect(self.messageLabel.text()).height()
-        self.messageLabel.hide()
-
-    def initSpinner(self):
-        self.spinner = QtWaitingSpinner(self, centerOnParent=True, disableParentWhenSpinning=True)
-        self.spinner.setNumberOfLines(15)
-        # self.spinner.setColor(QColor(81, 4, 71))
-        self.spinner.setInnerRadius(20)  #设置内圆大小
-        self.spinner.setLineLength(15)  #设置线长
-        self.spinner.setLineWidth(5)  # 设置线宽
-        self.spinner.setTrailFadePercentage(80)
 
     def setupRememberCheck(self):
 
@@ -117,11 +82,7 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
         else:
             self.remberCheckBox.setStyleSheet(rememberBoxStyle + 'QCheckBox{color:white}')
             self.settings.setValue('isChecked', False)
-            self.settings.setValue('username', '')
-            self.settings.setValue('password', '')
-
         self.settings.sync()
-
 
 
     def isLoginable(self):
@@ -230,7 +191,7 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
             return
 
 
-    def setIcon(self,lineEdit,iconPath):
+    def setLineEditIcon(self, lineEdit, iconPath):
         action = QAction(lineEdit)
         action.setIcon(QIcon(iconPath))
         lineEdit.addAction(action, QLineEdit.TrailingPosition) #LeadingPosition
@@ -238,11 +199,9 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
 
     def setupStyleSheet(self):
 
-        self.setStyleSheet("QDialog{border-image:url(Pictures/loginBg.png)}")
+        self.setStyleSheet('QDialog{border-image:url(Pictures/loginBg.png)}')
 
-        self.bgLabel.setStyleSheet("QLabel{background-color:rgba(0,0,0,0.25);border-radius:5px}" )# 设置透明背景色
-
-        # print(self.settings.value('isChecked'))
+        self.bgLabel.setStyleSheet('QLabel{background-color:rgba(0,0,0,0.25);border-radius:5px}' )# 设置透明背景色
 
         if self.settings.value('isChecked') =='true':
             self.remberCheckBox.setStyleSheet('QCheckBox{color:#d81e06}' + rememberBoxStyle)
@@ -252,13 +211,43 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
         self.userNameEdit.setStyleSheet(lineEditStyle)
         self.passwordEdit.setStyleSheet(lineEditStyle)
 
+    def initSettings(self):
+
+        self.settings = QSettings('Honeywell', '12306Train')
+        if self.settings.value('isChecked') == 'true':
+            self.remberCheckBox.setChecked(True)
+            self.userNameEdit.setText(self.settings.value('username'))
+            self.passwordEdit.setText(self.settings.value('password'))
+        else:
+            self.remberCheckBox.setChecked(False)
+
+    def initMessageLabel(self):
+        self.messageLabel.adjustSize()
+        self.messageLabel.setGeometry(QRect(70, 15, 360, 50))
+        self.messageLabel.setWordWrap(True)
+        self.messageLabel.setScaledContents(True)
+        self.messageLabel.setStyleSheet(
+            'QLabel{background-color:rgb(255,0,79);color:white;font:9pt;padding-left:5px;padding-right:5px;}')  # border-radius:5px
+
+        # height = self.messageLabel.fontMetrics().boundingRect(self.messageLabel.text()).height()
+        self.messageLabel.hide()
+
+    def initSpinner(self):
+        self.spinner = QtWaitingSpinner(self, centerOnParent=True, disableParentWhenSpinning=True)
+        self.spinner.setNumberOfLines(15)
+        # self.spinner.setColor(QColor(81, 4, 71))
+        self.spinner.setInnerRadius(20)  # 设置内圆大小
+        self.spinner.setLineLength(15)  # 设置线长
+        self.spinner.setLineWidth(5)  # 设置线宽
+        self.spinner.setTrailFadePercentage(80)
+
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     loginDialog = LoginDialog()
     if loginDialog.exec_() == QDialog.Accepted:
         mainWindow = MainWindow()
-        mainWindow.setWindowTitle('{},欢迎您进入查询余票'.format(loginDialog.userName))
+        mainWindow.setWindowTitle('{},欢迎您进入余票查询'.format(loginDialog.userName))
         mainWindow.show()
         sys.exit(app.exec_())
 
