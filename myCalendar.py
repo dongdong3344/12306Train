@@ -68,8 +68,8 @@ class MyCalendar(QCalendarWidget):
       self.nextmonthButton.clicked.connect(self.changeLabelText)
       self.monthbutton = self.findChild(QToolButton, 'qt_calendar_monthbutton')
       self.yearbutton  = self.findChild(QToolButton, 'qt_calendar_yearbutton')
-      self.prevmonthButton.setLineEditIcon(QIcon('Pictures/Prev.png'))  # 设置icon
-      self.nextmonthButton.setLineEditIcon(QIcon('Pictures/Next.png'))
+      self.prevmonthButton.setIcon(QIcon('Pictures/Prev.png'))  # 设置icon
+      self.nextmonthButton.setIcon(QIcon('Pictures/Next.png'))
       self.monthbutton.hide()  # 隐藏年月按钮
       self.yearbutton.hide()
 

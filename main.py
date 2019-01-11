@@ -49,10 +49,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.exchangeButton.setIconSize(QSize(50, 50))  # 设置交换按钮icon size
         self.exchangeButton.clicked.connect(self.exchangePlace)
 
-        self.timeButton.setText(self.utility.getDepartureDate()) #设置出发日期
-        self.timeButton.setIcon(QIcon('Pictures/calendar.png')) # 设置Icon
+        self.timeButton.setText(self.utility.getDepartureDate())  # 设置出发日期
+        self.timeButton.setIcon(QIcon('Pictures/calendar.png'))  # 设置Icon
         self.timeButton.clicked.connect(self.selectDate)
-
 
         self.studentCheckBox.stateChanged.connect(lambda: self.iSBoxChecked(self.studentCheckBox))
         self.highSpeedCheckBox.stateChanged.connect(lambda: self.iSBoxChecked(self.highSpeedCheckBox))
@@ -68,19 +67,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.completer.popup().setStyleSheet("QScrollBar{background:skyBlue;}")
         self.completer.popup().setItemDelegate(delegate)
 
+        self.setupEditIcon(self.startLineEdit,'始发地')
+        self.setupEditIcon(self.destinationLineEdit,'目的地')
 
-        self.startLineEdit.setCompleter(self.completer)
-        self.startLineEdit.setPlaceholderText('始发地')
-        start = QAction(self.startLineEdit)
-        icon = QIcon("Pictures/start.png")
-        start.setIcon(icon)
-        self.startLineEdit.addAction(start, QLineEdit.LeadingPosition)
-
-        self.destinationLineEdit.setCompleter(self.completer)
-        self.destinationLineEdit.setPlaceholderText('目的地')
-        destination = QAction(self.destinationLineEdit)
-        destination.setIcon(QIcon('Pictures/destination.png'))
-        self.destinationLineEdit.addAction(destination, QLineEdit.LeadingPosition)
 
     # def selectStation(self):
     #
@@ -107,6 +96,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     #     self.startButton.setText(self.placeLists.currentItem().text())
     #     self.placeLists.close()
 
+    def setupEditIcon(self,lineEdit,placeHolderText):
+        if lineEdit==self.startLineEdit:
+            iconPath = 'Pictures/start.png'
+        else:
+            iconPath = 'Pictures/destination.png'
+        lineEdit.setCompleter(self.completer)
+        lineEdit.setPlaceholderText(placeHolderText)
+        action = QAction(lineEdit)
+        action.setIcon(QIcon(iconPath))
+        lineEdit.addAction(action, QLineEdit.LeadingPosition)
 
     def selectDate(self):
         x = self.timeButton.x()  # 获取时间按钮的坐标x
@@ -118,7 +117,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.cal.clicked[QDate].connect(self.showDate)  # clicked[参数]，即定义showDate是传入的参数类型设置
         self.cal.show()
         self.startRect = QRect(self.geometry().x(), self.geometry().y(), self.width(), self.height())
-        self.endRect = QRect(self.geometry().x(), self.geometry().y(), self.width(), self.cal.y() + self.cal.height() + 15)
+        self.endRect   = QRect(self.geometry().x(), self.geometry().y(), self.width(), self.cal.y() + self.cal.height() + 15)
         self.setFrameAnimation(self.startRect, self.endRect)
         self.timeButton.setEnabled(False)
 
@@ -154,12 +153,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def exchangePlace(self):
-
         startPlace = self.startLineEdit.text()
         self.startLineEdit.setText(self.destinationLineEdit.text())
         self.destinationLineEdit.setText(startPlace)
-
-
 
 
     def setupCSSStyle(self):
@@ -170,16 +166,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.queryButton.setStyleSheet('QPushButton{color:white;background-color:#d81e06;border:1px;border-radius:5px}')
 
-        self.timeButton.setStyleSheet(
-            'QPushButton{text-align:left;color:white;background-color:transparent;qproperty-iconSize: 25px}')
+        self.timeButton.setStyleSheet('QPushButton{text-align:left;color:white;background-color:transparent;qproperty-iconSize: 25px}')
 
 
         for lineEdit in (self.startLineEdit,self.destinationLineEdit):
-
             lineEdit.setStyleSheet("QLineEdit{border-width:5px;border-radius:5px;font-size:12pt;padding-left:2px;"
                           "background-color:transparent;color:white;font-familiy:黑体;font-weight:bold;"
                           "border: 1px solid lightGray;}")
-
 
         for checkBox in (self.highSpeedCheckBox,self.studentCheckBox):
                 checkBox.setStyleSheet(checkBoxQSS)
