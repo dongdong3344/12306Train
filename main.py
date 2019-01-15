@@ -9,14 +9,15 @@ from myCalendar import MyCalendar
 from stationCodes import StationCodes
 
 
-
-calHeight = 280
+bottomSpace = 30   #日历控件距离底部间距
+calHeight   = 240 #日历高度
 checkBoxQSS = '''
            QCheckBox{color: white}
            QCheckBox::indicator {width: 20px; height: 20px}
            QCheckBox::indicator:unchecked {image:url(Pictures/unselect.png)}
            QCheckBox::indicator:checked {image:url(Pictures/selected.png)}
       '''
+
 
 class CompleterDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
@@ -76,7 +77,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.cal = MyCalendar(self)
         self.cal.setGeometry(x, y, w, h)
         self.cal.clicked[QDate].connect(self.showDate)  # clicked[参数]，即定义showDate是传入的参数类型设置
-        self.cal.hide()
+        self.cal.close()
 
 
     def setupLineEdit(self):
@@ -133,7 +134,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.isTimeButtonPressed == False:
             self.cal.show()
             self.startRect = QRect(self.geometry().x(), self.geometry().y(), self.width(), self.height())
-            self.endRect = QRect(self.geometry().x(), self.geometry().y(), self.width(),self.cal.y() + self.cal.height() + 15)
+            self.endRect   = QRect(self.geometry().x(), self.geometry().y(), self.width(),self.cal.y() + self.cal.height() + bottomSpace)
             self.setFrameAnimation(self.startRect, self.endRect)
             self.isTimeButtonPressed = True
         else:

@@ -7,10 +7,13 @@ from PyQt5.QtWidgets import QCalendarWidget, QToolButton, QWidget, QLabel
 
 
 monthDict = {
-    '一月': '01', '二月': '02', '三月': '03', '四月': '04',
-    '五月': '05', '六月': '06', '七月': '07', '八月': '08',
-    '九月': '09', '十月': '10', '十一月': '11', ' 十二月': '12'
+    '一月': '1', '二月': '2', '三月': '3', '四月': '4',
+    '五月': '5', '六月': '6', '七月': '7', '八月': '8',
+    '九月': '9', '十月': '10', '十一月': '11', ' 十二月': '12'
 }
+
+currentDateBackgroundColor = '#d81e06'
+selectDateBackgroundColor  = '#BBFFFF'
 
 class MyCalendar(QCalendarWidget):
   def __init__(self,parent=None):
@@ -36,6 +39,7 @@ class MyCalendar(QCalendarWidget):
       self.setDateRange(self.currentDate, self.maxDate)
 
 
+
   def setupTextFormat(self):
       # 表头设置文字颜色
       format = QTextCharFormat()
@@ -58,7 +62,8 @@ class MyCalendar(QCalendarWidget):
                          "color:black;"  #文字颜色
                          # "selection-background-color: lightBlue; " #选择的cell背景色
                          "selection-color:white; }"  #选中的cell文字颜色
-                         "QAbstractItemView:disabled {color:gray;}" )
+                         "QAbstractItemView:disabled {color:gray;}"
+                         )
 
 
   def initNavigationBar(self):
@@ -87,6 +92,7 @@ class MyCalendar(QCalendarWidget):
 
 
   def changeLabelText(self):
+
       self.monthAndYearLabel.setText('{}年{}月'.format(self.yearButton.text(), monthDict[self.monthButton.text()]))
 
 
@@ -117,18 +123,25 @@ class MyCalendar(QCalendarWidget):
       painter.restore()
 
 
+
+
+
   def paintCell(self,painter,rect,date):
 
-      if date == self.currentDate :
-          self.setupPainter(painter,rect,'#d81e06','white','今天',10)
-      elif date == self.selectedDate():
-          self.setupPainter(painter,rect,'#BBFFFF','red',str(date.day()),12)
+      if date == self.currentDate: #当前日期
+          self.setupPainter(painter,rect,currentDateBackgroundColor,'white','今天',9)
+      elif date == self.selectedDate(): #选择的日期
+          self.setupPainter(painter,rect,selectDateBackgroundColor,'red',str(date.day()),12)
       elif date < self.currentDate or date > self.maxDate:
           painter.setPen(QPen(QColor('gray')))
           painter.drawText(rect, Qt.AlignCenter, str(date.day()))
           painter.restore()
       else:
           super(MyCalendar, self).paintCell(painter, rect, date)
+
+      # 每个月只显示当月的日期
+      if date.month() != int(monthDict[self.monthButton.text()]):
+          self.setupPainter(painter,rect,'white','white','',0)
 
 
 
