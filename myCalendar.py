@@ -66,12 +66,12 @@ class MyCalendar(QCalendarWidget):
       self.nextmonthButton = self.findChild(QToolButton, 'qt_calendar_nextmonth')
       self.prevmonthButton.clicked.connect(self.changeLabelText)
       self.nextmonthButton.clicked.connect(self.changeLabelText)
-      self.monthbutton = self.findChild(QToolButton, 'qt_calendar_monthbutton')
-      self.yearbutton  = self.findChild(QToolButton, 'qt_calendar_yearbutton')
+      self.monthButton = self.findChild(QToolButton, 'qt_calendar_monthbutton')
+      self.yearButton  = self.findChild(QToolButton, 'qt_calendar_yearbutton')
       self.prevmonthButton.setIcon(QIcon('Pictures/Prev.png'))  # 设置icon
       self.nextmonthButton.setIcon(QIcon('Pictures/Next.png'))
-      self.monthbutton.hide()  # 隐藏年月按钮
-      self.yearbutton.hide()
+      self.monthButton.hide()  # 隐藏年月按钮
+      self.yearButton.hide()
 
       navBar = self.findChild(QWidget,'qt_calendar_navigationbar')
       navBar.setStyleSheet("QWidget{background-color: orange;min-height:25px;} ")
@@ -87,7 +87,7 @@ class MyCalendar(QCalendarWidget):
 
 
   def changeLabelText(self):
-      self.monthAndYearLabel.setText('{}年{}月'.format(self.yearbutton.text(), monthDict[self.monthbutton.text()]))
+      self.monthAndYearLabel.setText('{}年{}月'.format(self.yearButton.text(), monthDict[self.monthButton.text()]))
 
 
   def initMessageLabel(self):
@@ -96,44 +96,33 @@ class MyCalendar(QCalendarWidget):
       label.setText('当前预售期为30天，请选择您的出发日期') #这地方你想咋提示就写啥
       label.setAlignment(Qt.AlignCenter)  # 文字居中显示
       label.setFont(QFont('黑体', 8))
-      label.setStyleSheet('QLabel{color:gray}'
-                          'QLabel{background-color:rgb(253,245,230)}')
-
+      label.setStyleSheet('QLabel{color:gray;background-color:rgb(253,245,230)}')
       self.layout().addWidget(label)
+
+
+  def setupPainter(self,painter,rect,backgroundColor,textColor,text,fontSize):
+
+      painter.save()
+      # painter.fillRect(rect, QColor("#D3D3D3"))
+      painter.setPen(Qt.NoPen)
+      painter.setBrush(QColor(backgroundColor))
+      r = QRect(QPoint(), min(rect.width(), rect.height()) * QSize(1, 1))
+      r.moveCenter(rect.center())
+      painter.drawEllipse(r)
+      painter.setPen(QPen(QColor(textColor)))
+      # font = painter.font() #设置字体
+      # font.setPixelSize(12)
+      painter.setFont(QFont('黑体', fontSize))
+      painter.drawText(rect, Qt.AlignCenter, text)  # str(date.day())
+      painter.restore()
 
 
   def paintCell(self,painter,rect,date):
 
       if date == self.currentDate :
-          painter.save()
-          # painter.fillRect(rect, QColor("#D3D3D3"))
-          painter.setPen(Qt.NoPen)
-          painter.setBrush(QColor('#d81e06'))
-          r = QRect(QPoint(), min(rect.width(), rect.height()) * QSize(1, 1))
-          r.moveCenter(rect.center())
-          painter.drawEllipse(r)
-          painter.setPen(QPen(Qt.white))
-          # font = painter.font() #设置字体
-          # font.setPixelSize(12)
-          painter.setFont(QFont('黑体',8))
-          painter.drawText(rect, Qt.AlignCenter, '今天') #str(date.day())
-          painter.restore()
+          self.setupPainter(painter,rect,'#d81e06','white','今天',10)
       elif date == self.selectedDate():
-          painter.save()
-          # painter.fillRect(rect, QColor("#D3D3D3"))
-          painter.setPen(Qt.NoPen)
-          painter.setBrush(QColor('lightBlue'))
-          r = QRect(QPoint(), min(rect.width(), rect.height()) * QSize(1, 1))
-          r.moveCenter(rect.center())
-          painter.drawEllipse(r)
-          painter.setPen(QPen(Qt.white))
-          # font = painter.font() #设置字体
-          # font.setPixelSize(12)
-          painter.setFont(QFont('黑体', 10))
-          painter.drawText(rect, Qt.AlignCenter, str(date.day()))  # str(date.day())
-          painter.restore()
-
-
+          self.setupPainter(painter,rect,'#BBFFFF','red',str(date.day()),12)
       elif date < self.currentDate or date > self.maxDate:
           painter.setPen(QPen(QColor('gray')))
           painter.drawText(rect, Qt.AlignCenter, str(date.day()))
