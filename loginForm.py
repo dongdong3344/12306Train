@@ -10,6 +10,7 @@ from APIs import API
 import const
 from login import Ui_Dialog
 from tool import Utility
+from captcha import Captcha
 
 rememberBoxStyle = '''
                     QCheckBox::indicator {width: 20px; height: 20px}
@@ -44,11 +45,13 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
         self.userName = None
 
 
+
     def initUI(self):
         self.setupUi(self)
         self.setFixedSize(QSize(self.width(),self.height()))
         self.setWindowIcon(QIcon('Pictures/loginIcon.png'))
         self.setWindowTitle('12306登录')
+        self.loginButton.setText('立即登录')
         # self.userNameEdit.setClearButtonEnabled(True) #设置清空按钮
 
         self.setLineEditIcon(self.passwordEdit, 'Pictures/password_new.png')
@@ -92,12 +95,13 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
             self.loginButton.setStyleSheet('QPushButton{color:white;background-color:rgba(0,0,0,0.5);border:1px;border-radius:5px;}')
             self.loginButton.setEnabled(False)
         else:
-            self.loginButton.setStyleSheet("QPushButton{color:white;background-color:rgb(250,80,0);border-radius:5px}")
+            self.loginButton.setStyleSheet('QPushButton{color:white;background-color:rgb(250,80,0);border-radius:5px}')
             self.loginButton.setEnabled(True)
 
     def login(self):
 
         self.spinner.start()
+
         runnable = RequestRunnable(target=self.login12306)
         self.pool = QThreadPool.globalInstance()
         self.pool.start(runnable)
@@ -155,6 +159,7 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
 
     # 获取验证码正确答案
     def getCaptchaAnswer(self):
+
         response = self.session.get(API.captchaImage)
         if response.status_code == 200:
             print('验证码图片请求成功')
@@ -172,6 +177,10 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
 
     def captchaCheck(self):
         answer,cjyAnswerDict = self.getCaptchaAnswer()
+        # ca = Captcha(self)
+        # ca.show()
+        # answer = ca.coordinates
+
 
         data = {
             'login_site':'E',  # 固定的

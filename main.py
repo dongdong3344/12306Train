@@ -2,11 +2,12 @@ import sys
 from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import QSize, QDate, QPropertyAnimation, QRect, Qt
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QMainWindow,QCompleter, QAction, QLineEdit
+from PyQt5.QtWidgets import QMainWindow,QCompleter,QAction,QLineEdit
 from query import Ui_MainWindow
 from tool import Utility
 from myCalendar import MyCalendar
 from stationCodes import StationCodes
+
 
 
 calHeight = 280
@@ -58,6 +59,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.stations = StationCodes().getStations()
         self.setupLineEdit()
+
+
+
+
 
     def setupLineEdit(self):
         # 增加自动补全
@@ -128,9 +133,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.animation.setEndValue(endRect)
         self.animation.start()
 
-
     def showDate(self,date):
-
         dateStr = date.toString('yyyy-MM-dd')
         dateTime = self.utility.stringToDatetime(dateStr)
         self.timeButton.setText(self.utility.getDepartureDate(dateTime)) #"yyyy-MM-dd ddd(星期)"
@@ -140,7 +143,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def iSBoxChecked(self,checkBox):
-
         if checkBox.isChecked():
             checkBox.setStyleSheet(checkBoxQSS + "QCheckBox{color:#d81e06}")
         else:
@@ -174,8 +176,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                           "background-color:transparent;color:white;font-familiy:黑体;font-weight:bold;"
                           "border: 1px solid lightGray;}")
 
-        for checkBox in (self.highSpeedCheckBox,self.studentCheckBox):
-                checkBox.setStyleSheet(checkBoxQSS)
+        self.highSpeedCheckBox.setStyleSheet(checkBoxQSS)
+        self.studentCheckBox.setStyleSheet(checkBoxQSS)
+
 
 
 
