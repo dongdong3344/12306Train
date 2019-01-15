@@ -56,7 +56,7 @@ class MyCalendar(QCalendarWidget):
                          "QAbstractItemView:enabled {font: 10pt;" #字号
                          "font-family:Arial;" #字体
                          "color:black;"  #文字颜色
-                         "selection-background-color: red; " #选择的cell背景色
+                         # "selection-background-color: lightBlue; " #选择的cell背景色
                          "selection-color:white; }"  #选中的cell文字颜色
                          "QAbstractItemView:disabled {color:gray;}" )
 
@@ -104,7 +104,7 @@ class MyCalendar(QCalendarWidget):
 
   def paintCell(self,painter,rect,date):
 
-      if date == self.currentDate:
+      if date == self.currentDate :
           painter.save()
           # painter.fillRect(rect, QColor("#D3D3D3"))
           painter.setPen(Qt.NoPen)
@@ -118,6 +118,22 @@ class MyCalendar(QCalendarWidget):
           painter.setFont(QFont('黑体',8))
           painter.drawText(rect, Qt.AlignCenter, '今天') #str(date.day())
           painter.restore()
+      elif date == self.selectedDate():
+          painter.save()
+          # painter.fillRect(rect, QColor("#D3D3D3"))
+          painter.setPen(Qt.NoPen)
+          painter.setBrush(QColor('lightBlue'))
+          r = QRect(QPoint(), min(rect.width(), rect.height()) * QSize(1, 1))
+          r.moveCenter(rect.center())
+          painter.drawEllipse(r)
+          painter.setPen(QPen(Qt.white))
+          # font = painter.font() #设置字体
+          # font.setPixelSize(12)
+          painter.setFont(QFont('黑体', 10))
+          painter.drawText(rect, Qt.AlignCenter, str(date.day()))  # str(date.day())
+          painter.restore()
+
+
       elif date < self.currentDate or date > self.maxDate:
           painter.setPen(QPen(QColor('gray')))
           painter.drawText(rect, Qt.AlignCenter, str(date.day()))

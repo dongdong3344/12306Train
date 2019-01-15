@@ -16,6 +16,7 @@ rememberBoxStyle = '''
                     QCheckBox::indicator {width: 20px; height: 20px}
                     QCheckBox::indicator:unchecked {image:url(Pictures/unselect.png)}
                     QCheckBox::indicator:checked {image:url(Pictures/selected.png)}
+                    QCheckBox{color:%s} 
 '''
 
 lineEditStyle = '''
@@ -75,9 +76,9 @@ class LoginDialog(QtWidgets.QDialog, Ui_Dialog):
         self.remberCheckBox.stateChanged.connect(self.setupRememberCheck)
 
 
-    def setupRememberCheck(self):
+    def setupRememberCheck(self,state):
 
-        if self.remberCheckBox.checkState() :
+        if state == Qt.Checked:
             self.remberCheckBox.setStyleSheet(rememberBoxStyle + 'QCheckBox{color:#d81e06}')
             self.settings.setValue('isChecked', True)
             self.settings.setValue('username', self.userNameEdit.text())

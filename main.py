@@ -52,7 +52,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.timeButton.setText(self.utility.getDepartureDate())  # 设置出发日期
         self.timeButton.setIcon(QIcon('Pictures/calendar.png'))  # 设置Icon
-        self.timeButton.clicked.connect(self.selectDate)
+        self.timeButton.clicked[bool].connect(self.selectDate)
+
+        self.isTimeButtonPressed = False  #按钮点初始状态
 
         self.studentCheckBox.stateChanged.connect(lambda: self.iSBoxChecked(self.studentCheckBox))
         self.highSpeedCheckBox.stateChanged.connect(lambda: self.iSBoxChecked(self.highSpeedCheckBox))
@@ -60,8 +62,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.stations = StationCodes().getStations()
         self.setupLineEdit()
 
+        self.initCalendar()
 
 
+
+
+
+    def initCalendar(self):
+        x = self.timeButton.x()  # 获取时间按钮的坐标x
+        y = self.timeButton.y() + self.timeButton.height()
+        w = self.timeButton.width()
+        h = calHeight
+        self.cal = MyCalendar(self)
+        self.cal.setGeometry(x, y, w, h)
+        self.cal.clicked[QDate].connect(self.showDate)  # clicked[参数]，即定义showDate是传入的参数类型设置
+        self.cal.hide()
 
 
     def setupLineEdit(self):
@@ -112,19 +127,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         action.setIcon(QIcon(iconPath))
         lineEdit.addAction(action, QLineEdit.LeadingPosition)
 
-    def selectDate(self):
-        x = self.timeButton.x()  # 获取时间按钮的坐标x
-        y = self.timeButton.y() + self.timeButton.height()
-        w = self.timeButton.width()
-        h = calHeight
-        self.cal = MyCalendar(self)
-        self.cal.setGeometry(x,y,w,h)
-        self.cal.clicked[QDate].connect(self.showDate)  # clicked[参数]，即定义showDate是传入的参数类型设置
-        self.cal.show()
-        self.startRect = QRect(self.geometry().x(), self.geometry().y(), self.width(), self.height())
-        self.endRect   = QRect(self.geometry().x(), self.geometry().y(), self.width(), self.cal.y() + self.cal.height() + 15)
-        self.setFrameAnimation(self.startRect, self.endRect)
-        self.timeButton.setEnabled(False)
+    def selectDate(self,pressed):
+
+
+        if self.isTimeButtonPressed == False:
+            self.cal.show()
+            self.startRect = QRect(self.geometry().x(), self.geometry().y(), self.width(), self.height())
+            self.endRect = QRect(self.geometry().x(), self.geometry().y(), self.width(),self.cal.y() + self.cal.height() + 15)
+            self.setFrameAnimation(self.startRect, self.endRect)
+            self.isTimeButtonPressed = True
+        else:
+            self.setFrameAnimation(self.endRect, self.startRect)
+            self.cal.close()
+            self.isTimeButtonPressed = False
+
+
 
     def setFrameAnimation(self, startRect, endRect):
         self.animation = QPropertyAnimation(self, b'geometry')
@@ -138,8 +155,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         dateTime = self.utility.stringToDatetime(dateStr)
         self.timeButton.setText(self.utility.getDepartureDate(dateTime)) #"yyyy-MM-dd ddd(星期)"
         self.setFrameAnimation(self.endRect, self.startRect)
+        self.isTimeButtonPressed = False
         self.cal.close()  # 关闭日期控件
-        self.timeButton.setEnabled(True)
 
 
     def iSBoxChecked(self,checkBox):
