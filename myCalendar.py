@@ -62,11 +62,11 @@ class MyCalendar(QCalendarWidget):
                          "color:black;"  #文字颜色
                          # "selection-background-color: lightBlue; " #选择的cell背景色
                          "selection-color:white; }"  #选中的cell文字颜色
-                         "QAbstractItemView:disabled {color:gray;}"
-                         )
+                         "QAbstractItemView:disabled {color:gray;}" )
 
 
   def initNavigationBar(self):
+
       self.prevmonthButton = self.findChild(QToolButton, 'qt_calendar_prevmonth')
       self.nextmonthButton = self.findChild(QToolButton, 'qt_calendar_nextmonth')
       self.prevmonthButton.clicked.connect(self.changeLabelText)
@@ -118,12 +118,9 @@ class MyCalendar(QCalendarWidget):
       painter.setPen(QPen(QColor(textColor)))
       # font = painter.font() #设置字体
       # font.setPixelSize(12)
-      painter.setFont(QFont('黑体', fontSize))
+      painter.setFont(QFont('Arial', fontSize))
       painter.drawText(rect, Qt.AlignCenter, text)  # str(date.day())
       painter.restore()
-
-
-
 
 
   def paintCell(self,painter,rect,date):
@@ -133,15 +130,15 @@ class MyCalendar(QCalendarWidget):
       elif date == self.selectedDate(): #选择的日期
           self.setupPainter(painter,rect,selectDateBackgroundColor,'red',str(date.day()),12)
       elif date < self.currentDate or date > self.maxDate:
-          painter.setPen(QPen(QColor('gray')))
-          painter.drawText(rect, Qt.AlignCenter, str(date.day()))
-          painter.restore()
+          self.setupPainter(painter,rect,'white','gray',str(date.day()),10)
+      elif self.currentDate < date < self.maxDate:
+          self.setupPainter(painter,rect,'white','black',str(date.day()),10)
       else:
           super(MyCalendar, self).paintCell(painter, rect, date)
 
       # 每个月只显示当月的日期
-      if date.month() != int(monthDict[self.monthButton.text()]):
-          self.setupPainter(painter,rect,'white','white','',0)
+      # if date.month() != int(monthDict[self.monthButton.text()]):
+      #     self.setupPainter(painter,rect,'white','white','',0)
 
 
 
